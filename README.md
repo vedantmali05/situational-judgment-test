@@ -1,162 +1,55 @@
-# 🎯 Simple Quiz Application
+# 🎯 Situational Judgment Test (SJT)
 
-A lightweight web-based quiz application built using **HTML**, **Vanilla JavaScript**, and **Tailwind CSS**.
-
-This application allows students to:
-
-- Login using name and email
-- Attempt a timed multiple-choice quiz
-- Automatically move to the next question when time expires
-- Submit final score to **Google Sheets**
-- View a completion confirmation message
+A premium, lightweight, dark-themed **Situational Judgment Test (SJT)** built with Vanilla JS, Tailwind CSS, and Google Sheets integration.
 
 ---
 
-# 📌 Features
+## ⚡ Quick 3-Step Setup
 
-✅ Student login validation  
-✅ Timer-based quiz (30 seconds per question)  
-✅ Multiple-choice questions  
-✅ Dynamic score calculation  
-✅ Auto-submit on timeout  
-✅ Google Sheets integration for storing results  
-✅ Responsive UI using Tailwind CSS  
-✅ No backend required
-
----
-
-# 🛠 Tech Stack
-
-| Technology | Purpose |
-|-----------|---------|
-| HTML5 | Structure |
-| JavaScript | Application logic |
-| Tailwind CSS | Styling |
-| Google Apps Script | Save data to Google Sheets |
-
----
-
-# 📂 Project Structure
-
+### 1. Setup Google Sheet
+Create a blank Google Sheet and add these exactly as column headers in Row 1:
 ```text
-simple-quiz/
-│── index.html        # Main application file
-│── README.md         # Documentation
+Timestamp | Name | Email | TotalScore | Responses
 ```
 
----
+### 2. Deploy Apps Script
+1. Inside your Spreadsheet, click **Extensions > Apps Script**.
+2. Paste the contents of `AppsScript.js` into the editor.
+3. Replace `"YOUR_SPREADSHEET_ID_HERE"` with your spreadsheet ID (from the sheet URL).
+4. Click **Deploy > New Deployment**.
+5. Set deployment to **Web App**:
+   * **Execute as**: Me
+   * **Who has access**: Anyone
+6. Authorize and copy the generated **Web App URL**.
 
-# 🚀 Getting Started
-
-## 1. Download / Clone Project
-
-```bash
-git clone <your-repository-url>
-cd simple-quiz
-```
-
-Or simply download the source code ZIP.
-
----
-
-## 2. Open the Application
-
-Open:
-
-```text
-index.html
-```
-
-in any browser.
-
-Example:
-
-- Google Chrome
-- Microsoft Edge
-- Firefox
-- Safari
-
-No installation or server setup required.
-
----
-
-# ⚙️ Configuration
-
-## Update Google Sheets API URL
-
-Find this line in `index.html`:
-
+### 3. Connect Frontend
+Open `index.html` and paste your URL into `scriptURL` (around line 530):
 ```javascript
-const scriptURL = 'https://script.google.com/macros/s/your-script-id/exec';
+const scriptURL = "PASTE_YOUR_COPIED_URL_HERE";
 ```
 
-Replace it with your own **Google Apps Script Web App URL**.
+Double click `index.html` to run. Done! 🎉
 
 ---
 
-# 🧪 How to Use
-
-### Login
-
-Enter:
-
-- Name
-- Email
-
-Click:
-
-`Start Quiz`
-
----
-
-### Answer Questions
-
-- Select one option
-- Click **Next**
-- Timer runs automatically
-- If timer reaches 0, question auto-submits
-
----
-
-### Finish
-
-After last question:
-
-- Thank you message appears
-- Data gets stored in Google Sheets
-
----
-
-# 🔧 Customizing Questions
-
-Inside `index.html`, edit:
-
+## 🔒 Admin Allowlist
+To let your teammates/admins see scores, percentages, and restart button on completion:
+Add their emails to `adminEmails` inside `index.html` (around line 508):
 ```javascript
-const questions = [
-  {
-    text: "Your Question?",
-    time: 30,
-    options: [
-      { text: "Option 1", marks: 1 },
-      { text: "Option 2", marks: 5 }
-    ]
-  }
+const adminEmails = [
+  "admin@example.com",
+  "reviewer@example.com"
 ];
 ```
-
-You can change:
-
-- question text
-- timer
-- options
-- marks
+*(Everyone else only sees a simple, secure "Thank you" screen on submit.)*
 
 ---
 
-# 🌐 Deployment Options
+## 📊 Sheet Schema
+*   **TotalScore**: Total points earned.
+*   **Responses Format**: `Q1-4,Q2-3,Q3-1` *(Q1 got 4 pts, Q2 got 3 pts, etc. Works for any question count!)*
 
-You can host this app on:
+---
 
-- Netlify
-- Vercel
-- Firebase Hosting
+## 🌐 Deployment
+This is a static website and can be deployed entirely for free on **Netlify**, **GitHub Pages**, **Vercel**, or **Firebase Hosting**.
