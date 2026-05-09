@@ -1,0 +1,47 @@
+# Google Sheets Schema & Response Format (FINAL)
+
+This document outlines the finalized lightweight, low-maintenance column structure for the Google Sheets result storage.
+
+---
+
+### 1. Final Google Sheets Columns
+
+The Google Sheet requires exactly 5 columns:
+
+1. **Timestamp** — Recorded automatically on row creation (e.g., via Apps Script or Google Sheets default).
+2. **Name** — The name of the candidate.
+3. **Email** — The email of the candidate.
+4. **TotalScore** — Pre-calculated total points earned (sum of selected response points).
+5. **Responses** — Compact, human-readable response string tracking points per question.
+
+---
+
+### 2. Final Response Format
+
+To ensure full compatibility with any question count without altering column structures, all question scores are stored in a single cell as a comma-separated string:
+
+**Format:**
+`Q1-[Score],Q2-[Score],Q3-[Score],...`
+
+**Example:**
+`Q1-4,Q2-3,Q3-1,Q4-4`
+*(Where Q1 earned 4 points, Q2 earned 3 points, etc.)*
+
+---
+
+### 3. Reasoning & Advantages
+
+- **Ultra-Lightweight:** Removes any complex JSON serialization/deserialization or individual column bindings.
+- **Dynamic & Scalable:** Supports any arbitrary number of questions (e.g., 3, 15, or 25) without requiring sheet modifications.
+- **Human-Readable:** HR or reviewers can inspect candidate responses directly inside the sheet without any parsing or extraction scripts.
+- **Low Bug Risk:** Extremely straightforward to construct on the frontend and append via Google Apps Script.
+
+---
+
+### 4. Sample Row
+
+```text
+Timestamp           | Name   | Email            | TotalScore | Responses
+--------------------+--------+------------------+------------+--------------------
+2026-05-09 18:22:11 | Vedant | test@example.com | 67         | Q1-4,Q2-3,Q3-1,Q4-4
+```

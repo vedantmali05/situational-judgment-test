@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Situational Judgment Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/questions.js"></script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 font-sans">
+
+  <!-- Student Login Form -->
+  <div id="loginPage" class="bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-gray-700">
+    <h1 class="text-3xl font-bold mb-2 text-white">Situational Judgment Test</h1>
+    <p class="text-gray-400 mb-6 text-sm">Please enter your details to begin</p>
+    <input type="text" id="name" placeholder="Enter your name"
+      class="bg-gray-700 border border-gray-600 text-white p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-500 outline-none transition">
+    <input type="email" id="email" placeholder="Enter your email"
+      class="bg-gray-700 border border-gray-600 text-white p-3 rounded-lg w-full mb-6 focus:ring-2 focus:ring-blue-500 outline-none transition">
+    <button onclick="startAssessment()"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg w-full transition-colors">Start
+      Assessment</button>
+  </div>
+
+  <!-- Instructions Page -->
+  <div id="instructionsPage"
+    class="hidden bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-xl w-full border border-gray-700">
+    <h1 class="text-3xl font-bold mb-4 text-white text-center">Instructions</h1>
+    <div
+      class="bg-gray-700/50 p-5 rounded-xl border border-gray-600 mb-6 max-h-[50vh] overflow-y-auto text-gray-300 space-y-3 leading-relaxed text-sm">
+      <p class="font-semibold text-white mb-2 text-base">Please read the following assessment rules carefully before
+        starting:</p>
+      <ul class="space-y-3 text-left text-gray-300 leading-relaxed">
+        <li>
+          <span class="font-semibold text-white">20 Seconds:</span>
+          Each question must be answered within 20 seconds.
+        </li>
+
+        <li>
+          <span class="font-semibold text-white">No Going Back:</span>
+          Previous questions cannot be revisited.
+        </li>
+
+        <li>
+          <span class="font-semibold text-white">Auto Submission:</span>
+          When time ends, your selected option will be submitted automatically. If no option is selected, the question
+          will be submitted with 0 score.
+        </li>
+
+        <li>
+          <span class="font-semibold text-white">No Refreshing:</span>
+          Refreshing, tab switching, or malpractice may lead to disqualification.
+        </li>
+
+        <li>
+          <span class="font-semibold text-white">Important:</span>
+          Wait for final submission before closing the browser.
+        </li>
+      </ul>
+    </div>
+    <button onclick="beginAssessment()"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg w-full transition-colors shadow-lg">Start
+      Assessment</button>
+  </div>
+
+  <!-- Fullscreen Warning -->
+  <div id="fullscreenWarning"
+    class="hidden fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 font-bold z-50 shadow-md flex items-center justify-center space-x-4">
+    <span>Please return to fullscreen to continue the assessment!</span>
+    <button onclick="requestFullscreen()"
+      class="bg-white text-red-600 px-3 py-1 rounded text-sm font-semibold hover:bg-gray-100 transition-colors">Return
+      to Fullscreen</button>
+  </div>
+
+  <!-- Reload Recovery Modal -->
+  <div id="recoveryModal"
+    class="hidden fixed inset-0 bg-gray-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-gray-700">
+      <svg class="w-16 h-16 text-yellow-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+        </path>
+      </svg>
+      <h2 class="text-2xl font-bold mb-2 text-white">Assessment Reloaded</h2>
+      <p id="recoveryWarningText" class="text-gray-300 mb-6 text-sm leading-relaxed"></p>
+      <button onclick="resumeAssessment()"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg w-full transition-colors shadow-lg">Resume
+        & Enter Fullscreen</button>
+    </div>
+  </div>
+
+  <!-- Quiz Page -->
+  <div id="quizPage"
+    class="hidden bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-2xl w-full flex flex-col min-h-[400px] border border-gray-700">
+    <div class="flex justify-between items-center mb-6">
+      <span id="progressIndicator" class="text-gray-400 font-medium tracking-wide">Question 1 / 3</span>
+      <div class="flex items-center space-x-2 bg-gray-700 px-4 py-1.5 rounded-full" aria-live="polite">
+        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span id="timer" class="text-white font-mono font-bold text-lg">20s</span>
+      </div>
+    </div>
+
+    <h2 id="questionText" class="text-xl md:text-2xl font-semibold mb-8 text-white leading-relaxed"></h2>
+
+    <div id="optionsContainer" class="flex-grow flex flex-col space-y-3 mb-8"></div>
+
+    <button id="nextBtn" onclick="nextQuestion()"
+      class="mt-auto bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg w-full transition-colors"
+      disabled>Next Scenario</button>
+  </div>
+
+  <!-- Results Page -->
+  <div id="resultsPage"
+    class="hidden bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-3xl w-full border border-gray-700 max-h-[90vh] overflow-y-auto">
+    <div class="text-center mb-8 border-b border-gray-700 pb-6">
+      <h2 class="text-4xl font-bold text-white mb-2">Situational Judgment Test</h2>
+      <p id="candidateDetails" class="text-gray-400 text-lg"></p>
+    </div>
+
+    <div id="adminMetricsGrid" class="hidden grid grid-cols-3 gap-4 mb-8">
+      <div class="bg-gray-700 p-6 rounded-xl text-center">
+        <p class="text-gray-400 mb-1">Total Score</p>
+        <p id="totalScoreDisplay" class="text-4xl font-bold text-blue-400"></p>
+      </div>
+      <div class="bg-gray-700 p-6 rounded-xl text-center">
+        <p class="text-gray-400 mb-1">Percentage</p>
+        <p id="percentageDisplay" class="text-4xl font-bold text-green-400"></p>
+      </div>
+      <div class="bg-gray-700 p-6 rounded-xl text-center">
+        <p class="text-gray-400 mb-1">Reloads</p>
+        <p id="reloadDisplay" class="text-4xl font-bold text-orange-400"></p>
+      </div>
+    </div>
+
+    <!-- Submission Status Card -->
+    <div id="submissionStatusCard"
+      class="bg-gray-700/50 border border-gray-600 rounded-xl p-5 mb-8 text-center flex flex-col items-center justify-center space-y-3">
+      <div id="statusSpinner" class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      <p id="statusMessage" class="text-gray-200 font-semibold">Saving your response to the backend... Please wait...
+      </p>
+      <button id="retryBtn" onclick="submitAssessment()"
+        class="hidden bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors shadow">Retry
+        Submission</button>
+    </div>
+
+    <div id="adminBreakdownSection" class="hidden">
+      <h3 class="text-2xl font-semibold text-white mb-6">Detailed Breakdown</h3>
+      <div id="responsesContainer" class="space-y-6 mb-8"></div>
+      <button onclick="restartAssessment()"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg w-full transition-colors shadow-lg mt-4 mb-2">Restart
+        Assessment</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // Core questions loaded from external script
+      const questions = window.questions || [];
+
+      let currentQuestionIndex = 0;
+      let timerInterval;
+      let timeLeft = 20;
+      let studentName = '';
+      let studentEmail = '';
+      let responses = [];
+      let isFullscreen = false;
+      let questionStartTime = 0;
+
+      let assessmentStarted = false;
+      let assessmentCompleted = false;
+      let reloadCount = 0;
+      const MAX_RELOADS = 3;
+
+      let cooldownActive = false;
+      let cooldownInterval;
+
+      function saveState() {
+        const state = {
+          studentName,
+          studentEmail,
+          currentQuestionIndex,
+          responses,
+          assessmentStarted,
+          assessmentCompleted,
+          reloadCount
+        };
+        localStorage.setItem('quiz_state', JSON.stringify(state));
+      }
+
+      window.resumeAssessment = async function () {
+        const success = await window.requestFullscreen();
+        if (success) {
+          document.getElementById('recoveryModal').classList.add('hidden');
+          document.getElementById('quizPage').classList.remove('hidden');
+          showQuestion(currentQuestionIndex);
+        } else {
+          alert("Fullscreen is required to resume the assessment. Please click the button again.");
+        }
+      };
+
+      function restoreState() {
+        const saved = localStorage.getItem('quiz_state');
+        if (saved) {
+          try {
+            const state = JSON.parse(saved);
+
+            studentName = state.studentName;
+            studentEmail = state.studentEmail;
+            currentQuestionIndex = state.currentQuestionIndex;
+            responses = state.responses || [];
+            assessmentStarted = state.assessmentStarted;
+            assessmentCompleted = state.assessmentCompleted;
+            reloadCount = state.reloadCount || 0;
+
+            if (assessmentCompleted) {
+              document.getElementById('loginPage').classList.add('hidden');
+              showResults();
+              return;
+            }
+
+            if (assessmentStarted) {
+              reloadCount++;
+
+              if (reloadCount > MAX_RELOADS) {
+                alert("You have exceeded the maximum permitted reloads. Your test is terminated.");
+                while (currentQuestionIndex < questions.length) {
+                  responses.push({
+                    questionId: questions[currentQuestionIndex].id,
+                    scenario: questions[currentQuestionIndex].scenario,
+                    selectedOption: null,
+                    selectedText: "Disqualified (Reload limit exceeded)",
+                    points: 0,
+                    autoSubmitted: true,
+                    timeTaken: 0
+                  });
+                  currentQuestionIndex++;
+                }
+                saveState();
+                document.getElementById('loginPage').classList.add('hidden');
+                showResults();
+              } else {
+                const reloadsLeft = MAX_RELOADS - reloadCount;
+                saveState();
+
+                document.getElementById('loginPage').classList.add('hidden');
+
+                // Show recovery modal to force fullscreen via user interaction
+                const warningText = `Warning: Page reloaded. Only ${reloadsLeft} reloads are permitted now, else you will be removed from the test.`;
+                document.getElementById('recoveryWarningText').textContent = warningText;
+                document.getElementById('recoveryModal').classList.remove('hidden');
+              }
+            }
+          } catch (e) {
+            console.error("Could not restore state:", e);
+            localStorage.removeItem('quiz_state');
+          }
+        }
+      }
+
+      // Prevent accidental refresh state loss
+      window.addEventListener('beforeunload', (e) => {
+        if (assessmentStarted && !assessmentCompleted) {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+
+      // Block common reload keyboard shortcuts (F5, Ctrl+R, Cmd+R)
+      window.addEventListener('keydown', (e) => {
+        if (assessmentStarted && !assessmentCompleted) {
+          // F5
+          if (e.key === 'F5' || e.keyCode === 116) {
+            e.preventDefault();
+          }
+          // Ctrl+R or Cmd+R
+          if ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R' || e.keyCode === 82)) {
+            e.preventDefault();
+          }
+        }
+      });
+
+      // Disable right-click context menu to prevent reloading via mouse options
+      window.addEventListener('contextmenu', (e) => {
+        if (assessmentStarted && !assessmentCompleted) {
+          e.preventDefault();
+        }
+      });
+
+      // Fullscreen event listener
+      document.addEventListener('fullscreenchange', () => {
+        isFullscreen = !!document.fullscreenElement;
+        const warning = document.getElementById('fullscreenWarning');
+
+        // Only show warning if we're on the quiz page and not in fullscreen
+        if (!isFullscreen && !document.getElementById('quizPage').classList.contains('hidden')) {
+          warning.classList.remove('hidden');
+        } else {
+          warning.classList.add('hidden');
+        }
+      });
+
+      window.restartAssessment = function () {
+        localStorage.removeItem('quiz_state');
+        window.location.reload();
+      };
+
+      window.requestFullscreen = async function () {
+        try {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+            await document.documentElement.mozRequestFullScreen();
+          } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            await document.documentElement.webkitRequestFullscreen();
+          } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+            await document.documentElement.msRequestFullscreen();
+          }
+          return true;
+        } catch (err) {
+          console.warn('Fullscreen request failed:', err);
+          return false;
+        }
+      };
+
+      window.startAssessment = function () {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        // Basic Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!name || !email) {
+          alert("Please enter both name and email to continue.");
+          return;
+        }
+        if (!emailRegex.test(email)) {
+          alert("Please enter a valid email format.");
+          return;
+        }
+
+        studentName = name;
+        studentEmail = email;
+        reloadCount = 0;
+
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('instructionsPage').classList.remove('hidden');
+      };
+
+      window.beginAssessment = async function () {
+        const success = await window.requestFullscreen();
+        if (!success) {
+          alert("Please grant fullscreen permission to begin the assessment.");
+          return;
+        }
+
+        assessmentStarted = true;
+        saveState();
+
+        document.getElementById('instructionsPage').classList.add('hidden');
+        document.getElementById('quizPage').classList.remove('hidden');
+
+        showQuestion(currentQuestionIndex);
+      };
+
+      function showQuestion(index) {
+        clearInterval(timerInterval);
+        clearInterval(cooldownInterval);
+
+        const q = questions[index];
+
+        document.getElementById('progressIndicator').textContent = `Question ${index + 1} / ${questions.length}`;
+        document.getElementById('questionText').textContent = q.scenario;
+
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+
+        const nextBtn = document.getElementById('nextBtn');
+        nextBtn.disabled = true;
+
+        cooldownActive = true;
+        let cooldownLeft = 3;
+        nextBtn.textContent = `Next Scenario (Available in ${cooldownLeft}s)`;
+
+        cooldownInterval = setInterval(() => {
+          cooldownLeft--;
+          if (cooldownLeft > 0) {
+            nextBtn.textContent = `Next Scenario (Available in ${cooldownLeft}s)`;
+          } else {
+            clearInterval(cooldownInterval);
+            cooldownActive = false;
+            nextBtn.textContent = "Next Scenario";
+            // Check if an option is already selected
+            if (document.querySelector('input[name="option"]:checked')) {
+              nextBtn.disabled = false;
+            }
+          }
+        }, 1000);
+
+        q.options.forEach((opt, i) => {
+          const optionDiv = document.createElement('div');
+          optionDiv.className = 'relative flex items-center p-4 border border-gray-600 rounded-xl hover:bg-gray-700 cursor-pointer transition-colors group';
+          optionDiv.innerHTML = `
+            <input type="radio" id="opt_${i}" name="option" value="${i}" class="w-5 h-5 text-blue-600 bg-gray-700 border-gray-500 focus:ring-blue-500 focus:ring-2 mr-4 cursor-pointer">
+            <label for="opt_${i}" class="text-gray-200 cursor-pointer flex-grow leading-snug w-full h-full">${opt.text}</label>
+          `;
+
+          const radio = optionDiv.querySelector('input');
+
+          // Proper keyboard accessibility and direct change handling
+          radio.addEventListener('change', () => {
+            document.querySelectorAll('#optionsContainer > div').forEach(d => {
+              d.classList.remove('border-blue-500', 'bg-gray-700');
+              d.classList.add('border-gray-600');
+            });
+            optionDiv.classList.remove('border-gray-600');
+            optionDiv.classList.add('border-blue-500', 'bg-gray-700');
+
+            if (!cooldownActive) {
+              nextBtn.disabled = false;
+            }
+          });
+
+          // Make the whole div clickable
+          optionDiv.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+              radio.checked = true;
+              radio.dispatchEvent(new Event('change'));
+            }
+          });
+
+          optionsContainer.appendChild(optionDiv);
+        });
+
+        timeLeft = q.time;
+        questionStartTime = Date.now();
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay();
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            window.nextQuestion(true); // Auto-submit
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay() {
+        const timerEl = document.getElementById('timer');
+        timerEl.textContent = `${timeLeft}s`;
+        if (timeLeft <= 5) {
+          timerEl.classList.remove('text-white');
+          timerEl.classList.add('text-red-400');
+        } else {
+          timerEl.classList.add('text-white');
+          timerEl.classList.remove('text-red-400');
+        }
+      }
+
+      window.nextQuestion = function (auto = false) {
+        // Prevent double submission
+        document.getElementById('nextBtn').disabled = true;
+        clearInterval(cooldownInterval);
+
+        const selectedRadio = document.querySelector('input[name="option"]:checked');
+        const q = questions[currentQuestionIndex];
+        const timeTaken = Math.round((Date.now() - questionStartTime) / 1000);
+
+        if (selectedRadio) {
+          const selectedIndex = parseInt(selectedRadio.value);
+          responses.push({
+            questionId: q.id,
+            scenario: q.scenario,
+            selectedOption: selectedIndex,
+            selectedText: q.options[selectedIndex].text,
+            points: q.options[selectedIndex].points,
+            autoSubmitted: auto,
+            timeTaken: timeTaken
+          });
+        } else {
+          // Auto submitted with no selection
+          responses.push({
+            questionId: q.id,
+            scenario: q.scenario,
+            selectedOption: null,
+            selectedText: "No option selected",
+            points: 0,
+            autoSubmitted: true,
+            timeTaken: timeTaken
+          });
+        }
+
+        currentQuestionIndex++;
+        saveState();
+
+        if (currentQuestionIndex < questions.length) {
+          showQuestion(currentQuestionIndex);
+        } else {
+          showResults();
+        }
+      };
+
+      function showResults() {
+        clearInterval(timerInterval);
+        assessmentCompleted = true; // Allow page to close without warning
+
+        saveState();
+
+        // Exit fullscreen if desired
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(err => console.log(err));
+        }
+
+        document.getElementById('fullscreenWarning').classList.add('hidden');
+        document.getElementById('quizPage').classList.add('hidden');
+        document.getElementById('resultsPage').classList.remove('hidden');
+
+        let totalScore = 0;
+        let maxPossibleScore = questions.length * 4; // 4 points is max per question
+
+        const responsesContainer = document.getElementById('responsesContainer');
+        responsesContainer.innerHTML = '';
+
+        responses.forEach((resp, index) => {
+          totalScore += resp.points;
+
+          let pointColorClass = 'text-green-400';
+          if (resp.points === 1 || resp.points === 0) pointColorClass = 'text-red-400';
+          if (resp.points === 2) pointColorClass = 'text-orange-400';
+          if (resp.points === 3) pointColorClass = 'text-yellow-400';
+
+          const item = document.createElement('div');
+          item.className = 'bg-gray-700 rounded-xl p-5 border border-gray-600';
+          item.innerHTML = `
+            <div class="flex justify-between items-start mb-3">
+              <span class="text-sm text-gray-400 font-semibold tracking-wide">Q${index + 1}</span>
+              <div class="flex gap-2">
+                ${resp.autoSubmitted ? '<span class="bg-red-900/50 text-red-300 text-xs px-2 py-1 rounded">Auto-submitted</span>' : ''}
+                <span class="${pointColorClass} font-bold bg-gray-800 px-3 py-1 rounded-lg">${resp.points} / 4 pts</span>
+              </div>
+            </div>
+            <p class="text-white mb-4 text-lg">${resp.scenario}</p>
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+              <span class="text-gray-400 text-sm block mb-1">Your Response (${resp.timeTaken}s):</span>
+              <span class="text-gray-200">${resp.selectedText}</span>
+            </div>
+          `;
+          responsesContainer.appendChild(item);
+        });
+
+        const percentage = Math.round((totalScore / maxPossibleScore) * 100);
+
+        // Administration emails list
+        const adminEmails = [
+          "vedantmali05@gmail.com",
+          "snehagiri990@gmail.com",
+          "lavannyadeshpande@gmail.com",
+          "lavannyadeshpande5@gmail.com",
+          "shrutimisal20@gmail.com",
+          "markadtanvi@gmail.com",
+          "tanviwatane01@gmail.com"
+        ];
+
+        const isUserAdmin = adminEmails.map(e => e.toLowerCase().trim()).includes(studentEmail.toLowerCase().trim());
+
+        if (isUserAdmin) {
+          document.getElementById('adminMetricsGrid').classList.remove('hidden');
+          document.getElementById('adminBreakdownSection').classList.remove('hidden');
+          document.getElementById('candidateDetails').textContent = `${studentName} • ${studentEmail}`;
+          document.getElementById('totalScoreDisplay').textContent = `${totalScore} / ${maxPossibleScore}`;
+          document.getElementById('percentageDisplay').textContent = `${percentage}%`;
+          document.getElementById('reloadDisplay').textContent = `${reloadCount}`;
+        } else {
+          document.getElementById('adminMetricsGrid').classList.add('hidden');
+          document.getElementById('adminBreakdownSection').classList.add('hidden');
+          document.getElementById('candidateDetails').textContent = "";
+        }
+
+        const scriptURL = "https://script.google.com/macros/s/AKfycbwjoMc2Psi-UFlpuGCh2vTnTwQLjIHOTetxlGkiqncMh3SiVnCO3ZEb3_z0r5M-zQec8w/exec";
+        let isSubmitting = false;
+
+        window.submitAssessment = function () {
+          if (isSubmitting) return;
+          isSubmitting = true;
+
+          const card = document.getElementById('submissionStatusCard');
+          const spinner = document.getElementById('statusSpinner');
+          const msg = document.getElementById('statusMessage');
+          const retryBtn = document.getElementById('retryBtn');
+
+          card.className = "bg-gray-700/50 border border-gray-600 rounded-xl p-5 mb-8 text-center flex flex-col items-center justify-center space-y-3";
+          spinner.classList.remove('hidden');
+          msg.className = "text-gray-200 font-semibold";
+          msg.textContent = "Saving your response to the backend... Please wait...";
+          retryBtn.classList.add('hidden');
+
+          const compactResponses = responses.map((resp, idx) => `Q${idx + 1}-${resp.points}`).join(',');
+          const payload = {
+            name: studentName,
+            email: studentEmail,
+            totalScore: totalScore,
+            responses: compactResponses
+          };
+
+          console.log("Submitting payload:", payload);
+
+          fetch(scriptURL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+          })
+            .then(res => res.json())
+            .then(res => {
+              isSubmitting = false;
+              if (res.success) {
+                console.log("Submission successful!");
+                card.className = "bg-green-950/20 border border-green-500/50 rounded-xl p-5 mb-8 text-center flex flex-col items-center justify-center space-y-3";
+                spinner.classList.add('hidden');
+                msg.className = "text-green-400 font-semibold";
+                if (isUserAdmin) {
+                  msg.textContent = "Submission successful! Your evaluation has been saved.";
+                } else {
+                  msg.textContent = "Thank you for completing the assessment.";
+                }
+              } else {
+                throw new Error(res.error || "Unknown server error");
+              }
+            })
+            .catch(err => {
+              isSubmitting = false;
+              console.error("Submission failed:", err);
+              card.className = "bg-red-950/20 border border-red-500/50 rounded-xl p-5 mb-8 text-center flex flex-col items-center justify-center space-y-3";
+              spinner.classList.add('hidden');
+              msg.className = "text-red-400 font-semibold";
+              msg.textContent = "Failed to submit response. Please check your internet connection and try again.";
+              retryBtn.classList.remove('hidden');
+            });
+        };
+
+        submitAssessment();
+      }
+      // Initialize state restoration on load
+      restoreState();
+    })();
+  </script>
+</body>
+
+</html>
